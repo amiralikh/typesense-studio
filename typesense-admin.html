@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeSense Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet">
+<style>
+/* ─── Reset ─────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+
+/* ─── Tokens ─────────────────────────────────────────────── */
+:root{
+  --font:'Inter',system-ui,sans-serif;
+  --g0:#fff;--g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;
+  --g300:#d1d5db;--g400:#9ca3af;--g500:#6b7280;
+  --g600:#4b5563;--g700:#374151;--g800:#1f2937;--g900:#111827;
+  --i50:#eef2ff;--i100:#e0e7ff;--i200:#c7d2fe;
+  --i500:#6366f1;--i600:#4f46e5;--i700:#4338ca;
+  --bg:var(--g50);--sur:var(--g0);
+  --bd:var(--g200);--bd2:var(--g300);
+  --tx:var(--g900);--tx2:var(--g500);--tx3:var(--g400);
+  --ac:var(--i600);--ach:var(--i700);
+  --em:#10b981;--emd:#059669;--emb:#ecfdf5;--embd:#a7f3d0;
+  --re:#f43f5e;--red:#e11d48;--reb:#fff1f2;--rebd:#fecdd3;
+  --am:#f59e0b;--amb:#fffbeb;--ambd:#fde68a;
+  --sk:#0ea5e9;--skb:#f0f9ff;--skbd:#bae6fd;
+  --vi:#8b5cf6;--vib:#f5f3ff;--vibd:#ddd6fe;
+  --sh0:0 1px 2px rgba(0,0,0,.05);
+  --sh1:0 1px 3px rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);
+  --sh2:0 4px 6px -1px rgba(0,0,0,.08),0 2px 4px -2px rgba(0,0,0,.06);
+  --sh3:0 10px 15px -3px rgba(0,0,0,.08),0 4px 6px -4px rgba(0,0,0,.05);
+  --sh4:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);
+  --t:150ms cubic-bezier(.4,0,.2,1);
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--tx);height:100vh;display:flex;flex-direction:column;overflow:hidden;line-height:1.5;}
+
+/* ─── Shell ──────────────────────────────────────────────── */
+.shell{display:flex;flex-direction:column;height:100vh;}
+.body {display:flex;flex:1;overflow:hidden;}
+.main {flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.scroll{flex:1;overflow-y:auto;padding:24px;}
+
+/* ─── Topbar ─────────────────────────────────────────────── */
+.topbar{height:56px;background:var(--sur);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;z-index:50;}
+.logo{display:flex;align-items:center;gap:8px;font-size:.9375rem;font-weight:700;color:var(--tx);letter-spacing:-.022em;user-select:none;flex-shrink:0;}
+.logo-mark{width:30px;height:30px;background:var(--ac);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;}
+.logo-mark svg{width:17px;height:17px;}
+.vsep{width:1px;height:20px;background:var(--bd);flex-shrink:0;}
+.conn-pill{display:flex;align-items:center;gap:6px;background:var(--g100);border:1px solid var(--bd);border-radius:20px;padding:4px 11px 4px 9px;font-size:.75rem;color:var(--tx2);cursor:default;user-select:none;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--g300);flex-shrink:0;transition:background var(--t),box-shadow var(--t);}
+.dot.ok {background:var(--em);box-shadow:0 0 0 2.5px rgba(16,185,129,.18);}
+.dot.err{background:var(--re);box-shadow:0 0 0 2.5px rgba(244,63,94,.18);}
+.topbar-end{margin-left:auto;display:flex;align-items:center;gap:8px;}
+
+/* ─── Buttons ────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font);font-size:.8125rem;font-weight:500;line-height:1;padding:7px 14px;border-radius:6px;border:1px solid transparent;cursor:pointer;transition:all var(--t);white-space:nowrap;user-select:none;text-decoration:none;}
+.btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+.btn svg{width:15px;height:15px;flex-shrink:0;}
+.btn-primary  {background:var(--ac);color:#fff;border-color:var(--ac);}
+.btn-primary:hover{background:var(--ach);border-color:var(--ach);box-shadow:0 1px 4px rgba(79,70,229,.4);}
+.btn-secondary{background:var(--sur);color:var(--tx);border-color:var(--bd2);}
+.btn-secondary:hover{background:var(--g50);border-color:var(--g300);}
+.btn-ghost    {background:transparent;color:var(--tx2);border-color:transparent;}
+.btn-ghost:hover{background:var(--g100);color:var(--tx);}
+.btn-dg       {background:transparent;color:var(--red);border-color:transparent;}
+.btn-dg:hover {background:var(--reb);border-color:var(--re);}
+.btn-danger   {background:var(--red);color:#fff;border-color:var(--red);}
+.btn-danger:hover{background:#c81d40;}
+.btn-success  {background:var(--emd);color:#fff;border-color:var(--emd);}
+.btn-success:hover{background:#047857;}
+.btn-sm {padding:5px 10px;font-size:.75rem;border-radius:5px;}
+.btn-xs {padding:3px 8px;font-size:.6875rem;border-radius:4px;}
+.btn-icon{padding:6px;}
+
+/* ─── Sidebar ────────────────────────────────────────────── */
+.sidebar{width:232px;background:var(--sur);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+.sb-scroll{flex:1;overflow-y:auto;padding:10px 10px 16px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;transition:background var(--t),color var(--t);color:var(--tx2);font-size:.8125rem;font-weight:450;user-select:none;}
+.nav-item:hover{background:var(--g100);color:var(--tx);}
+.nav-item.active{background:var(--i50);color:var(--i600);font-weight:500;}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:.6;}
+.nav-item.active svg{opacity:1;}
+.nav-count{margin-left:auto;font-size:.6875rem;color:var(--tx3);background:var(--g100);padding:1px 6px;border-radius:10px;font-weight:500;}
+.nav-item.active .nav-count{background:var(--i100);color:var(--i600);}
+.nav-sep{height:1px;background:var(--bd);margin:8px 2px;}
+.nav-label{display:flex;align-items:center;justify-content:space-between;font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.065em;color:var(--tx3);padding:8px 10px 4px;}
+
+/* ─── Tabs ───────────────────────────────────────────────── */
+.tabs{display:flex;align-items:center;background:var(--sur);border-bottom:1px solid var(--bd);padding:0 24px;flex-shrink:0;}
+.tab{padding:12px 14px 11px;font-size:.8125rem;font-weight:500;cursor:pointer;color:var(--tx2);border-bottom:2px solid transparent;transition:all var(--t);user-select:none;}
+.tab:hover{color:var(--tx);}
+.tab.active{color:var(--i600);border-bottom-color:var(--i500);}
+.tabs-meta{margin-left:auto;display:flex;align-items:center;gap:8px;}
+
+/* ─── Card ───────────────────────────────────────────────── */
+.card{background:var(--sur);border:1px solid var(--bd);border-radius:10px;box-shadow:var(--sh0);}
+.card-hd{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.card-hd h2{font-size:.9375rem;font-weight:600;display:flex;align-items:center;gap:8px;color:var(--tx);}
+.card-hd h2 svg{width:17px;height:17px;color:var(--tx3);}
+.card-bd{padding:20px;}
+
+/* ─── Stats ──────────────────────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px;margin-bottom:24px;}
+.stat{background:var(--sur);border:1px solid var(--bd);border-radius:10px;padding:16px 18px;box-shadow:var(--sh0);}
+.stat-lbl{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.065em;color:var(--tx3);margin-bottom:8px;}
+.stat-val{font-size:1.5rem;font-weight:700;letter-spacing:-.03em;}
+.stat-val.ca{color:var(--i600);}
+.stat-val.cg{color:var(--emd);}
+.stat-val.cs{color:var(--sk);}
+.stat-unit{font-size:.875rem;font-weight:400;color:var(--tx3);}
+
+/* ─── Table ──────────────────────────────────────────────── */
+.tbl-wrap{border:1px solid var(--bd);border-radius:10px;overflow:hidden;box-shadow:var(--sh0);}
+table{width:100%;border-collapse:collapse;background:var(--sur);}
+thead{background:var(--g50);}
+th{padding:9px 14px;text-align:left;font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.065em;color:var(--tx3);border-bottom:1px solid var(--bd);white-space:nowrap;position:sticky;top:0;background:var(--g50);z-index:2;}
+td{padding:10px 14px;font-size:.8125rem;color:var(--tx);border-bottom:1px solid var(--bd);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr{transition:background var(--t);}
+tbody tr:hover td{background:var(--g50);}
+.mono{font-family:'Menlo','Consolas',monospace;font-size:.75rem;color:var(--tx2);}
+.td-actions{display:flex;gap:4px;align-items:center;}
+
+/* ─── Badges ─────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:.6875rem;font-weight:600;letter-spacing:.02em;border:1px solid transparent;}
+.bi{background:var(--i50);color:var(--i600);border-color:var(--i200);}
+.bg{background:var(--emb);color:var(--emd);border-color:var(--embd);}
+.ba{background:var(--amb);color:#b45309;border-color:var(--ambd);}
+.bs{background:var(--skb);color:#0284c7;border-color:var(--skbd);}
+.bv{background:var(--vib);color:#7c3aed;border-color:var(--vibd);}
+.br{background:var(--reb);color:var(--red);border-color:var(--rebd);}
+.bz{background:var(--g100);color:var(--g600);border-color:var(--g200);}
+
+/* ─── Forms ──────────────────────────────────────────────── */
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fr{display:flex;gap:12px;}
+.fl{font-size:.75rem;font-weight:500;color:var(--tx2);}
+.inp,.sel,.ta{font-family:var(--font);font-size:.875rem;color:var(--tx);background:var(--sur);border:1px solid var(--bd2);border-radius:6px;padding:8px 12px;outline:none;transition:border-color var(--t),box-shadow var(--t);width:100%;}
+.inp::placeholder,.ta::placeholder{color:var(--tx3);}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--i500);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
+.sel{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+.ta{resize:vertical;line-height:1.55;font-family:'Menlo','Consolas',monospace;font-size:.8125rem;}
+
+/* ─── Search ─────────────────────────────────────────────── */
+.srow{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+.swrap{position:relative;flex:1;min-width:200px;}
+.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx3);pointer-events:none;width:16px;height:16px;}
+.sinp{font-family:var(--font);font-size:.875rem;color:var(--tx);background:var(--sur);border:1px solid var(--bd2);border-radius:6px;padding:8px 12px 8px 34px;outline:none;width:100%;transition:border-color var(--t),box-shadow var(--t);}
+.sinp::placeholder{color:var(--tx3);}
+.sinp:focus{border-color:var(--i500);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
+
+/* ─── Toolbar ────────────────────────────────────────────── */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.te{margin-left:auto;display:flex;gap:8px;align-items:center;}
+
+/* ─── Toast ──────────────────────────────────────────────── */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{display:flex;align-items:center;gap:10px;background:var(--g800);color:#f9fafb;padding:11px 16px;border-radius:10px;font-size:.8125rem;font-weight:500;box-shadow:var(--sh4);pointer-events:auto;animation:tIn .22s cubic-bezier(.34,1.56,.64,1);max-width:320px;}
+.toast svg{width:16px;height:16px;flex-shrink:0;}
+.toast.ok  svg{color:var(--em);}
+.toast.err svg{color:var(--re);}
+.toast.inf svg{color:var(--sk);}
+@keyframes tIn{from{transform:translateY(10px);opacity:0;}}
+
+/* ─── Modal ──────────────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(17,24,39,.5);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease;backdrop-filter:blur(3px);}
+@keyframes fadeIn{from{opacity:0;}}
+.modal{background:var(--sur);border:1px solid var(--bd);border-radius:16px;width:560px;max-width:92vw;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,.22);animation:mIn .2s cubic-bezier(.34,1.4,.64,1);}
+@keyframes mIn{from{transform:scale(.96);opacity:0;}}
+.mhd{padding:20px 24px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.mtitle{font-size:1rem;font-weight:600;letter-spacing:-.01em;}
+.msub{font-size:.8125rem;color:var(--tx2);margin-top:2px;}
+.mbd{padding:20px 24px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px;}
+.mft{padding:14px 24px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:8px;background:var(--g50);}
+
+/* ─── Connect screen ─────────────────────────────────────── */
+.cscreen{display:flex;align-items:flex-start;justify-content:center;height:100%;padding:40px 20px;overflow-y:auto;gap:20px;flex-wrap:wrap;}
+.ccard{width:420px;max-width:100%;background:var(--sur);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh4);overflow:hidden;flex-shrink:0;}
+.cc-top{padding:28px 32px 24px;background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);}
+.cc-body{padding:24px 32px 28px;display:flex;flex-direction:column;gap:15px;}
+.cc-title{font-size:1.25rem;font-weight:700;color:#fff;letter-spacing:-.025em;margin-bottom:4px;}
+.cc-sub{font-size:.875rem;color:rgba(255,255,255,.72);}
+
+/* ─── Saved connections panel ────────────────────────────── */
+.saved-panel{width:260px;max-width:100%;display:flex;flex-direction:column;gap:12px;}
+.saved-panel-title{font-size:.875rem;font-weight:600;color:var(--tx);display:flex;align-items:center;gap:7px;}
+.saved-panel-title svg{width:16px;height:16px;color:var(--tx3);}
+.conn-card{background:var(--sur);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all var(--t);display:flex;flex-direction:column;gap:3px;position:relative;}
+.conn-card:hover{border-color:var(--i500);box-shadow:0 0 0 3px rgba(99,102,241,.1);}
+.conn-card-name{font-size:.875rem;font-weight:600;color:var(--tx);}
+.conn-card-host{font-size:.75rem;color:var(--tx2);font-family:'Menlo','Consolas',monospace;}
+.conn-card-del{position:absolute;top:8px;right:8px;opacity:0;transition:opacity var(--t);}
+.conn-card:hover .conn-card-del{opacity:1;}
+.no-saved{text-align:center;padding:20px 16px;color:var(--tx3);font-size:.8125rem;border:1px dashed var(--bd);border-radius:10px;}
+
+/* ─── Code ───────────────────────────────────────────────── */
+.code{background:var(--g900);color:#e2e8f0;border-radius:10px;padding:16px;font-family:'Menlo','Consolas',monospace;font-size:.8125rem;line-height:1.65;overflow:auto;white-space:pre-wrap;word-break:break-all;}
+.jk{color:#93c5fd;}.js{color:#86efac;}.jn{color:#fde68a;}.jb{color:#c4b5fd;}.jnl{color:#94a3b8;}
+
+/* ─── Schema field ───────────────────────────────────────── */
+.field-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--bd);transition:background var(--t);}
+.field-row:last-child{border-bottom:none;}
+.field-row:hover{background:var(--g50);}
+.fname{flex:2;font-family:'Menlo','Consolas',monospace;font-size:.8125rem;font-weight:500;color:var(--tx);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ftype{flex:1;}
+.fflags{flex:3;display:flex;flex-wrap:wrap;gap:4px;}
+
+/* ─── Page header ────────────────────────────────────────── */
+.ph{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.ph-title{font-size:1.125rem;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+.ph-title svg{width:20px;height:20px;color:var(--tx3);}
+.ph-meta{font-size:.8125rem;color:var(--tx3);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ph-dot{width:3px;height:3px;border-radius:50%;background:var(--bd2);}
+
+/* ─── Alerts ─────────────────────────────────────────────── */
+.alert{display:flex;align-items:flex-start;gap:9px;padding:11px 14px;border-radius:6px;font-size:.8125rem;line-height:1.5;}
+.alert svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;}
+.al-i{background:var(--i50);border:1px solid var(--i200);color:var(--i700);}
+.al-e{background:var(--reb);border:1px solid var(--rebd);color:#9f1239;}
+
+/* ─── Pagination ─────────────────────────────────────────── */
+.pager{display:flex;align-items:center;gap:8px;margin-top:14px;}
+.pager-info{font-size:.8125rem;color:var(--tx3);margin-right:auto;}
+
+/* ─── Empty / Loading ────────────────────────────────────── */
+.empty{text-align:center;padding:56px 20px;}
+.eico{display:flex;align-items:center;justify-content:center;margin-bottom:12px;opacity:.3;}
+.eico svg{width:40px;height:40px;}
+.etitle{font-size:.9375rem;font-weight:600;color:var(--tx2);margin-bottom:4px;}
+.esub{font-size:.8125rem;color:var(--tx3);}
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:48px;color:var(--tx3);font-size:.875rem;}
+.spin{width:18px;height:18px;border:2px solid var(--bd2);border-top-color:var(--i500);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ─── Misc ───────────────────────────────────────────────── */
+.sec-lbl{font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.065em;color:var(--tx3);margin-bottom:10px;}
+.null-v{color:var(--tx3);font-style:italic;}
+.obj-v {color:var(--tx3);}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--g200);border-radius:99px;}
+::-webkit-scrollbar-thumb:hover{background:var(--g300);}
+code{font-family:'Menlo','Consolas',monospace;background:var(--i50);color:var(--i700);padding:1px 5px;border-radius:4px;font-size:.875em;}
+kbd{background:var(--g100);border:1px solid var(--g200);border-radius:4px;padding:1px 5px;font-size:.6875rem;color:var(--tx2);}
+
+/* ─── Dark theme tokens ──────────────────────────────────── */
+/* Applied when html[data-theme="dark"], or via system preference
+   when html[data-theme="system"] and OS is dark.              */
+html[data-theme="dark"],
+html[data-theme="system"].sys-dark {
+  color-scheme: dark;
+  --bg:  #0f1117;
+  --sur: #161b27;
+  --bd:  #252d3d;
+  --bd2: #2e3a50;
+  --tx:  #e8edf5;
+  --tx2: #8494ae;
+  --tx3: #4e607a;
+  --g50: #161b27;
+  --g100:#1c2333;
+  --g200:#252d3d;
+  --g300:#2e3a50;
+  --g400:#4e607a;
+  --g500:#6b7e98;
+  --g600:#8494ae;
+  --g700:#a9bbd0;
+  --g800:#cdd8e8;
+  --g900:#e8edf5;
+  --i50: #1a1f3a;
+  --i100:#1f2654;
+  --i200:#2d3a7a;
+  --sh0: 0 1px 3px rgba(0,0,0,.4);
+  --sh4: 0 20px 25px -5px rgba(0,0,0,.5), 0 8px 10px -6px rgba(0,0,0,.4);
+  --emb: #052e1c; --embd:#064e2e;
+  --reb: #2a0a11; --rebd:#4a1020;
+  --amb: #271a05; --ambd:#3d2a08;
+  --skb: #051b2e; --skbd:#082b47;
+  --vib: #1a1040; --vibd:#2a1a60;
+}
+
+/* Dark-mode table header override (thead uses hard g50 var) */
+html[data-theme="dark"] thead,
+html[data-theme="system"].sys-dark thead { background:var(--g50); }
+html[data-theme="dark"] th,
+html[data-theme="system"].sys-dark th { background:var(--g50); }
+
+/* Dark-mode modal footer */
+html[data-theme="dark"] .mft,
+html[data-theme="system"].sys-dark .mft { background:var(--g50); }
+
+/* Dark-mode select arrow (needs lighter stroke) */
+html[data-theme="dark"] .sel,
+html[data-theme="system"].sys-dark .sel {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238494ae' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Dark code block stays same (already dark bg) */
+html[data-theme="dark"] code,
+html[data-theme="system"].sys-dark code {
+  background:var(--i100);
+  color:#a5b4fc;
+}
+html[data-theme="dark"] kbd,
+html[data-theme="system"].sys-dark kbd {
+  background:var(--g100);
+  border-color:var(--g200);
+}
+
+/* ─── Theme switcher widget ──────────────────────────────── */
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  background: var(--g100);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+.theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  border: none;
+  background: transparent;
+  color: var(--tx3);
+  cursor: pointer;
+  transition: all var(--t);
+  position: relative;
+}
+.theme-btn:hover { background: var(--g200); color: var(--tx2); }
+.theme-btn.active {
+  background: var(--sur);
+  color: var(--ac);
+  box-shadow: var(--sh0);
+}
+.theme-btn svg { width: 15px; height: 15px; }
+
+/* ─── Smooth theme transition ────────────────────────────── */
+html { transition: background-color .25s ease, color .25s ease; }
+body, .topbar, .sidebar, .card, .modal, .stat, .tbl-wrap, table, .ccard, .conn-card {
+  transition: background-color .25s ease, border-color .25s ease, color .2s ease;
+}
+</style>
+</head>
+<body>
+<div id="app" class="shell"></div>
+<div id="toasts"></div>
+
+<script>
+const HI = {
+  bolt:           `<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>`,
+  circleStack:    `<path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 2.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125m0 5.625c0 2.278 3.694 4.125 8.25 4.125s8.25-1.847 8.25-4.125"/>`,
+  chartBar:       `<path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>`,
+  link:           `<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>`,
+  key:            `<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/>`,
+  magnifyingGlass:`<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"/>`,
+  plus:           `<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>`,
+  trash:          `<path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>`,
+  pencil:         `<path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/>`,
+  eye:            `<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>`,
+  xMark:          `<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>`,
+  arrowDown:      `<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/>`,
+  arrowUp:        `<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18"/>`,
+  arrowPath:      `<path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>`,
+  checkCircle:    `<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>`,
+  exclamCircle:   `<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>`,
+  infoCircle:     `<path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>`,
+  server:         `<path stroke-linecap="round" stroke-linejoin="round" d="M21.75 17.25v.75a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25v-.75m19.5 0A2.25 2.25 0 0019.5 15h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 19.409a2.25 2.25 0 01-1.07-1.916V17.25m19.5-9.75a2.25 2.25 0 00-2.25-2.25h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 9.409a2.25 2.25 0 01-1.07-1.916V7.5m19.5 0A2.25 2.25 0 0019.5 5.25h-15a2.25 2.25 0 00-2.25 2.25"/>`,
+  tableCells:     `<path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m7.5-3.75c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-7.5 0h7.5"/>`,
+  codeBracket:    `<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/>`,
+  arrowUpTray:    `<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>`,
+  arrowDownTray:  `<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>`,
+  check:          `<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>`,
+  bookmark:       `<path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"/>`,
+  bookmarkSolid:  `<path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clip-rule="evenodd"/>`,
+  ellipsisVert:   `<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"/>`,
+  shield:         `<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>`,
+  sun:            `<path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>`,
+  moon:           `<path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>`,
+  computer:       `<path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/>`,
+};
+
+const THEME_KEY = 'ts_studio_theme';
+
+const Theme = {
+  // 'light' | 'dark' | 'system'
+  current: localStorage.getItem(THEME_KEY) || 'system',
+
+  sysDark: () => window.matchMedia('(prefers-color-scheme: dark)').matches,
+
+  apply(mode) {
+    Theme.current = mode;
+    localStorage.setItem(THEME_KEY, mode);
+    const html = document.documentElement;
+    html.dataset.theme = mode;
+        if (mode === 'system') {
+      html.classList.toggle('sys-dark', Theme.sysDark());
+    } else {
+      html.classList.remove('sys-dark');
+    }
+  },
+
+  init() {
+        Theme.apply(Theme.current);
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (Theme.current === 'system') {
+        document.documentElement.classList.toggle('sys-dark', e.matches);
+      }
+    });
+  },
+
+  isDark() {
+    return Theme.current === 'dark' ||
+      (Theme.current === 'system' && Theme.sysDark());
+  },
+};
+
+Theme.init();
+
+const hi = (name, cls = '', sz = 20) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" class="${cls}">${HI[name] || ''}</svg>`;
+
+const esc = s => String(s ?? '')
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+const STORAGE_KEY = 'ts_studio_connections';
+
+const Connections = {
+  load() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    catch { return []; }
+  },
+  save(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  },
+  add(conn) {
+    const list = Connections.load();
+      const idx = list.findIndex(c => c.name === conn.name);
+    if (idx >= 0) list[idx] = conn; else list.push(conn);
+    Connections.save(list);
+    return list;
+  },
+  remove(name) {
+    const list = Connections.load().filter(c => c.name !== name);
+    Connections.save(list);
+    return list;
+  },
+};
+
+const API = {
+  host:'localhost', port:'8108', key:'', protocol:'http',
+  url: p => `${API.protocol}://${API.host}:${API.port}${p}`,
+  hdr: () => ({ 'X-TYPESENSE-API-KEY': API.key, 'Content-Type': 'application/json' }),
+
+  async req(method, path, body) {
+    const r = await fetch(API.url(path), {
+      method, headers: API.hdr(),
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+    if (!r.ok) throw new Error(await r.text().catch(() => `HTTP ${r.status}`));
+    return r.json();
+  },
+  get:   p      => API.req('GET',    p),
+  post:  (p, b) => API.req('POST',   p, b),
+  del:   p      => API.req('DELETE', p),
+  safe:  p      => API.get(p).catch(() => null),
+
+  async ndPost(path, docs) {
+    const r = await fetch(API.url(path), {
+      method: 'POST',
+      headers: { 'X-TYPESENSE-API-KEY': API.key, 'Content-Type': 'text/plain' },
+      body: docs.map(d => JSON.stringify(d)).join('\n'),
+    });
+    if (!r.ok) throw new Error(await r.text().catch(() => `HTTP ${r.status}`));
+    return r.text();
+  },
+};
+
+const S = {
+  connected: false, connecting: false, connError: '',
+  savedConns: Connections.load(),
+  activeConnName: '',      
+  collections: [], aliases: [], apiKeys: [],
+  health: null, stats: null,
+
+  nav: null, tab: 'browse',
+
+  query: '', sortField: '', sortDir: 'asc',
+  results: null, page: 1, loading: false,
+
+  modal: null, mdata: {},
+};
+
+const set = u => { Object.assign(S, u); render(); };
+
+const toast = (msg, type = 'inf') => {
+  const ico = { ok: 'checkCircle', err: 'exclamCircle', inf: 'infoCircle' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `${hi(ico[type] || 'infoCircle')} <span>${esc(msg)}</span>`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => {
+    el.style.cssText = 'opacity:0;transform:translateY(6px);transition:all .18s ease;';
+    setTimeout(() => el.remove(), 200);
+  }, 3000);
+};
+
+const num = v => v == null ? '—' : Number(v).toLocaleString();
+
+const typeBadge = t => {
+  const m = {
+    string:'bi','string[]':'bi',int32:'ba',int64:'ba','int32[]':'ba','int64[]':'ba',
+    float:'bs','float[]':'bs',bool:'bv','bool[]':'bv',
+    object:'bg','object[]':'bg',auto:'bz',image:'br',
+  };
+  return `<span class="badge ${m[t]||'bz'}">${t}</span>`;
+};
+
+const jsonHL = obj =>
+  JSON.stringify(obj, null, 2).replace(
+    /("(?:\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\b(?:true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
+    m => /^"/.test(m) ? (/:$/.test(m) ? `<span class="jk">${m}</span>` : `<span class="js">${m}</span>`)
+       : /true|false/.test(m) ? `<span class="jb">${m}</span>`
+       : /null/.test(m) ? `<span class="jnl">${m}</span>` : `<span class="jn">${m}</span>`
+  );
+
+const qfields = name => {
+  const c = S.collections.find(x => x.name === name);
+  const sf = (c?.fields || []).filter(f => ['string','string[]'].includes(f.type) && f.index !== false).map(f => f.name);
+  return sf.slice(0, 3).join(',') || 'id';
+};
+
+async function doConnect({ host, port, key, protocol }) {
+  Object.assign(API, { host, port, key, protocol });
+  set({ connecting: true, connError: '' });
+  try {
+    const [health, colls, alR] = await Promise.all([
+      API.get('/health'), API.get('/collections'), API.safe('/aliases'),
+    ]);
+    if (!health?.ok) throw new Error('Server health check returned not-ok.');
+    set({
+      connected: true, connecting: false,
+      collections: colls || [], aliases: alR?.aliases || [],
+      health, nav: '__overview__',
+    });
+    API.safe('/stats.json').then(s => set({ stats: s }));
+    toast('Connected successfully', 'ok');
+  } catch (e) {
+    set({ connecting: false, connError: e.message });
+  }
+}
+
+function saveCurrentConnection(name) {
+  if (!name.trim()) { toast('Enter a name for this connection', 'err'); return; }
+  const conn = { name: name.trim(), host: API.host, port: API.port, key: API.key, protocol: API.protocol };
+  const list = Connections.add(conn);
+  set({ savedConns: list, activeConnName: conn.name, modal: null });
+  toast(`Saved as "${conn.name}"`, 'ok');
+}
+
+function loadConnection(conn) {
+  set({ activeConnName: conn.name });
+  doConnect(conn);
+}
+
+function deleteConnection(name) {
+  const list = Connections.remove(name);
+  set({ savedConns: list, activeConnName: S.activeConnName === name ? '' : S.activeConnName });
+  toast(`Deleted "${name}"`, 'inf');
+}
+
+const disconnect = () => {
+  Object.assign(S, { connected:false, collections:[], aliases:[], apiKeys:[], nav:null, results:null, activeConnName:'' });
+  render();
+};
+
+async function selectColl(name) {
+  set({ nav: name, tab: 'browse', query: '', results: null, page: 1 });
+  await doSearch();
+}
+
+async function doSearch(page = 1) {
+  if (!S.nav || S.nav.startsWith('__')) return;
+  set({ loading: true, page });
+  try {
+    const p = new URLSearchParams({ q: S.query.trim() || '*', query_by: qfields(S.nav), per_page: 20, page });
+    if (S.sortField) p.set('sort_by', `${S.sortField}:${S.sortDir}`);
+    const r = await API.get(`/collections/${encodeURIComponent(S.nav)}/documents/search?${p}`);
+    set({ results: r, loading: false });
+  } catch (e) { set({ loading: false }); toast(e.message, 'err'); }
+}
+
+async function delDoc(id) {
+  try { await API.del(`/collections/${encodeURIComponent(S.nav)}/documents/${encodeURIComponent(id)}`); await doSearch(S.page); toast('Document deleted', 'ok'); }
+  catch (e) { toast(e.message, 'err'); }
+}
+
+async function upsertDoc(str) {
+  try {
+    await API.post(`/collections/${encodeURIComponent(S.nav)}/documents?action=upsert`, JSON.parse(str));
+    set({ modal: null }); await doSearch(S.page); toast('Document saved', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+async function createColl(str) {
+  try {
+    const s = JSON.parse(str);
+    await API.post('/collections', s);
+    set({ collections: await API.get('/collections'), modal: null });
+    toast(`Collection "${s.name}" created`, 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+async function delColl(name) {
+  if (!confirm(`Permanently delete "${name}" and all its documents?\n\nThis cannot be undone.`)) return;
+  try {
+    await API.del(`/collections/${name}`);
+    set({ collections: await API.get('/collections'), nav: '__overview__', results: null });
+    toast(`"${name}" deleted`, 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+async function createAlias(name, coll) {
+  try {
+    await API.post(`/aliases/${name}`, { collection_name: coll });
+    set({ aliases: (await API.safe('/aliases'))?.aliases || [], modal: null });
+    toast(`Alias "${name}" created`, 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+async function delAlias(name) {
+  if (!confirm(`Delete alias "${name}"?`)) return;
+  try {
+    await API.del(`/aliases/${name}`);
+    set({ aliases: (await API.safe('/aliases'))?.aliases || [] });
+    toast(`Alias "${name}" deleted`, 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+async function importDocs(raw, action) {
+  let docs;
+  try { docs = raw.trim().startsWith('[') ? JSON.parse(raw) : raw.trim().split('\n').filter(Boolean).map(l => JSON.parse(l)); }
+  catch { toast('Invalid JSON — check your input', 'err'); return; }
+  const res  = await API.ndPost(`/collections/${encodeURIComponent(S.nav)}/documents/import?action=${encodeURIComponent(action)}`, docs);
+  const lines = res.split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return {}; } });
+  const ok   = lines.filter(l => l.success).length;
+  toast(`${ok} / ${lines.length} documents imported`, ok === lines.length ? 'ok' : 'inf');
+  await doSearch(1);
+}
+
+async function exportAll() {
+  try {
+    const r = await fetch(API.url(`/collections/${encodeURIComponent(S.nav)}/documents/export`), { headers: API.hdr() });
+    Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(new Blob([await r.text()], { type: 'application/x-ndjson' })),
+      download: `${S.nav.replace(/[^a-zA-Z0-9_-]/g,"_")}.ndjson`,
+    }).click();
+    toast('Export started', 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+function exportResults() {
+  const docs = (S.results?.hits || []).map(h => h.document);
+  if (!docs.length) { toast('No results to export', 'inf'); return; }
+  Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([JSON.stringify(docs, null, 2)], { type: 'application/json' })),
+    download: `${S.nav.replace(/[^a-zA-Z0-9_-]/g,"_")}-results.json`,
+  }).click();
+}
+
+const render = () => {
+  document.getElementById('app').innerHTML = buildShell();
+  bindEvents();
+};
+
+const buildShell = () => `
+  ${buildTopbar()}
+  <div class="body">
+    ${S.connected ? buildSidebar() : ''}
+    <div class="main">${buildMain()}</div>
+  </div>
+  ${buildModal()}`;
+
+const buildTopbar = () => `
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-mark">${hi('bolt')}</div>
+    TypeSense Studio
+  </div>
+  ${S.connected ? `
+    <div class="vsep"></div>
+    <div class="conn-pill">
+      <div class="dot ok"></div>
+      ${S.activeConnName
+        ? `<strong style="color:var(--tx)">${S.activeConnName}</strong>&ensp;·&ensp;`
+        : ''}${API.protocol}://${API.host}:${API.port}
+    </div>
+  ` : `<div class="conn-pill"><div class="dot"></div>Not connected</div>`}
+  <div class="topbar-end">
+    ${S.connected ? `
+      ${S.activeConnName ? '' : `<button class="btn btn-ghost btn-sm" id="btn-save-conn">${hi('bookmark')} Save Connection</button>`}
+      <button class="btn btn-ghost btn-sm" id="btn-refresh">${hi('arrowPath')} Refresh</button>
+      <button class="btn btn-secondary btn-sm" id="btn-dc">${hi('xMark')} Disconnect</button>
+      <div class="vsep"></div>
+    ` : ''}
+    <div class="theme-switcher">
+      <button class="theme-btn ${Theme.current==='light'?'active':''}" data-theme="light" title="Light">${hi('sun')}</button>
+      <button class="theme-btn ${Theme.current==='system'?'active':''}" data-theme="system" title="System">${hi('computer')}</button>
+      <button class="theme-btn ${Theme.current==='dark'?'active':''}" data-theme="dark" title="Dark">${hi('moon')}</button>
+    </div>
+  </div>
+</header>`;
+
+const buildSidebar = () => {
+  const item = (id, iconName, label, count) => `
+  <div class="nav-item ${S.nav === id ? 'active' : ''}" data-nav="${esc(id)}">
+    ${hi(iconName)} <span style="flex:1">${esc(label)}</span>
+    ${count != null ? `<span class="nav-count">${num(count)}</span>` : ''}
+  </div>`;
+
+  return `
+  <nav class="sidebar">
+    <div class="sb-scroll">
+      ${item('__overview__', 'chartBar',    'Overview')}
+      ${item('__aliases__',  'link',        'Aliases', S.aliases.length || null)}
+      ${item('__keys__',     'key',         'API Keys')}
+      <div class="nav-sep"></div>
+      <div class="nav-label">
+        Collections
+        <button class="btn btn-ghost btn-xs" id="btn-new-coll" style="padding:2px 7px;gap:4px">${hi('plus','',14)} New</button>
+      </div>
+      ${S.collections.length
+        ? S.collections.map(c => item(c.name, 'circleStack', c.name, c.num_documents)).join('')
+        : `<p style="font-size:.75rem;color:var(--tx3);padding:6px 10px">No collections yet</p>`}
+    </div>
+  </nav>`;
+};
+
+const buildMain = () => {
+  if (!S.connected) return buildConnect();
+  switch (S.nav) {
+    case null:           return buildEmpty('Select a collection', 'Browse, search, and manage documents from the sidebar.', 'circleStack');
+    case '__overview__': return buildOverview();
+    case '__aliases__':  return buildAliasesPage();
+    case '__keys__':     return buildKeysPage();
+    default:             return buildCollView();
+  }
+};
+
+const buildConnect = () => `
+<div class="cscreen">
+  <div class="ccard">
+    <div class="cc-top">
+      <div style="width:38px;height:38px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:#fff">${hi('server','',20)}</div>
+      <div class="cc-title">TypeSense Studio</div>
+      <div class="cc-sub">Connect to your Typesense server to get started.</div>
+    </div>
+    <div class="cc-body">
+      ${S.connError ? `<div class="alert al-e">${hi('exclamCircle')} ${esc(S.connError)}</div>` : ''}
+      <div class="fr">
+        <div class="fg" style="flex:3">
+          <label class="fl">Host</label>
+          <input class="inp" id="c-host" value="${S.mdata.host||'localhost'}" placeholder="localhost">
+        </div>
+        <div class="fg" style="flex:1">
+          <label class="fl">Port</label>
+          <input class="inp" id="c-port" value="${S.mdata.port||'8108'}">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Protocol</label>
+        <select class="sel" id="c-proto">
+          <option value="http"  ${(S.mdata.protocol||'http')==='http' ?'selected':''}>HTTP</option>
+          <option value="https" ${(S.mdata.protocol||'http')==='https'?'selected':''}>HTTPS</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Admin API Key</label>
+        <input class="inp" id="c-key" type="password" value="${S.mdata.key||''}" placeholder="your-admin-api-key">
+      </div>
+      <div class="fg" id="save-name-row" style="display:${S.mdata._saveNew?'flex':'none'}">
+        <label class="fl">Save as (connection name)</label>
+        <input class="inp" id="c-save-name" placeholder="e.g. Production" value="${S.mdata.saveName||''}">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-primary" id="btn-connect" ${S.connecting?'disabled':''} style="flex:1;justify-content:center;padding:10px;font-size:.9375rem;">
+          ${S.connecting
+            ? `<div class="spin" style="width:16px;height:16px;border-width:2px"></div>Connecting…`
+            : `${hi('arrowPath')} Connect`}
+        </button>
+        <button class="btn btn-ghost btn-sm btn-icon" id="btn-toggle-save" title="${S.mdata._saveNew?'Cancel save':'Save this connection'}" style="padding:9px">
+          ${hi(S.mdata._saveNew ? 'xMark' : 'bookmark')}
+        </button>
+      </div>
+      <p style="text-align:center;font-size:.75rem;color:var(--tx3)">Run Typesense with <kbd>--enable-cors</kbd> when connecting from the browser.</p>
+    </div>
+  </div>
+
+  <div class="saved-panel">
+    <div class="saved-panel-title">${hi('bookmarkSolid')} Saved Connections</div>
+    ${S.savedConns.length === 0
+      ? `<div class="no-saved">${hi('server','',28)}<p style="margin-top:8px">No saved connections.<br>Connect and click ${hi('bookmark','',13)} to save.</p></div>`
+      : S.savedConns.map(c => `
+      <div class="conn-card" data-load-conn="${esc(c.name)}">
+        <div class="conn-card-name">${esc(c.name)}</div>
+        <div class="conn-card-host">${esc(c.protocol)}://${esc(c.host)}:${esc(c.port)}</div>
+        <button class="btn btn-ghost btn-xs btn-icon conn-card-del" data-del-conn="${esc(c.name)}" title="Remove">${hi('trash','',14)}</button>
+      </div>`).join('')}
+  </div>
+</div>`;
+
+const buildEmpty = (title, sub, icon) => `
+<div class="scroll">
+  <div class="empty" style="padding-top:80px">
+    <div class="eico">${hi(icon,'',40)}</div>
+    <div class="etitle">${title}</div>
+    <p class="esub">${sub}</p>
+  </div>
+</div>`;
+
+const buildOverview = () => {
+  const total = S.collections.reduce((a, c) => a + (c.num_documents || 0), 0);
+  const st = S.stats;
+  return `
+<div class="scroll">
+  <div class="ph">
+    <div>
+      <div class="ph-title">${hi('chartBar')} Overview</div>
+      <div class="ph-meta">
+        <span>${num(S.collections.length)} collections</span>
+        <span class="ph-dot"></span>
+        <span style="color:${S.health?.ok ? 'var(--emd)' : 'var(--red)'}">
+          ${hi(S.health?.ok ? 'checkCircle' : 'exclamCircle','',14)} ${S.health?.ok ? 'Healthy' : 'Unhealthy'}
+        </span>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" id="btn-new-coll2">${hi('plus')} New Collection</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-lbl">Collections</div><div class="stat-val ca">${num(S.collections.length)}</div></div>
+    <div class="stat"><div class="stat-lbl">Total Documents</div><div class="stat-val cg">${num(total)}</div></div>
+    <div class="stat"><div class="stat-lbl">Aliases</div><div class="stat-val">${num(S.aliases.length)}</div></div>
+    ${st?.search_latency_ms != null ? `<div class="stat"><div class="stat-lbl">Avg Latency</div><div class="stat-val cs">${st.search_latency_ms.toFixed(1)}<span class="stat-unit"> ms</span></div></div>` : ''}
+    ${st?.total_index_size_bytes != null ? `<div class="stat"><div class="stat-lbl">Index Size</div><div class="stat-val">${(st.total_index_size_bytes/1048576).toFixed(1)}<span class="stat-unit"> MB</span></div></div>` : ''}
+  </div>
+
+  <div class="sec-lbl">All Collections</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Documents</th><th>Fields</th><th>Created</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody>
+        ${S.collections.length === 0
+          ? `<tr><td colspan="5"><div class="empty" style="padding:32px"><div class="etitle">No collections</div><p class="esub">Create your first collection to get started.</p></div></td></tr>`
+          : S.collections.map(c => `
+        <tr>
+          <td><a href="#" style="color:var(--i600);font-weight:500" data-nav="${esc(c.name)}">${esc(c.name)}</a></td>
+          <td class="mono">${num(c.num_documents)}</td>
+          <td class="mono">${(c.fields||[]).length}</td>
+          <td class="mono">${c.created_at ? new Date(c.created_at*1000).toLocaleDateString() : '—'}</td>
+          <td style="text-align:right">
+            <div class="td-actions" style="justify-content:flex-end">
+              <button class="btn btn-ghost btn-xs" data-nav="${esc(c.name)}">${hi('tableCell','',14)} Browse</button>
+              <button class="btn btn-dg btn-xs btn-icon" data-del-coll="${esc(c.name)}" title="Delete">${hi('trash','',14)}</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`;
+};
+
+const buildAliasesPage = () => `
+<div class="scroll">
+  <div class="ph">
+    <div>
+      <div class="ph-title">${hi('link')} Aliases</div>
+      <div class="ph-meta">Route a stable name to any collection</div>
+    </div>
+    <button class="btn btn-primary btn-sm" id="btn-new-alias">${hi('plus')} Create Alias</button>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Alias Name</th><th>Points To</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody>
+        ${S.aliases.length === 0
+          ? `<tr><td colspan="3"><div class="empty" style="padding:40px"><div class="eico">${hi('link','',40)}</div><div class="etitle">No aliases configured</div><p class="esub">Aliases let you swap collections without changing your query endpoint.</p></div></td></tr>`
+          : S.aliases.map(a => `
+        <tr>
+          <td style="font-weight:600;color:var(--i600)">${esc(a.name)}</td>
+          <td class="mono">${esc(a.collection_name)}</td>
+          <td style="text-align:right">
+            <button class="btn btn-dg btn-xs" data-del-alias="${esc(a.name)}">${hi('trash','',14)} Delete</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`;
+
+const buildKeysPage = () => `
+<div class="scroll">
+  <div class="ph">
+    <div>
+      <div class="ph-title">${hi('key')} API Keys</div>
+      <div class="ph-meta">Manage scoped access tokens</div>
+    </div>
+    <button class="btn btn-secondary btn-sm" id="btn-load-keys">${hi('arrowPath')} Load Keys</button>
+  </div>
+  ${S.apiKeys.length === 0
+    ? `<div class="card" style="padding:48px;text-align:center">
+        <div class="eico">${hi('key','',40)}</div>
+        <div class="etitle" style="margin-bottom:10px">Click "Load Keys" to fetch your API keys</div>
+        <p class="esub">Requires admin key permissions.</p>
+      </div>`
+    : `<div class="tbl-wrap"><table>
+        <thead><tr><th>ID</th><th>Description</th><th>Actions</th><th>Collections</th><th>Expires</th></tr></thead>
+        <tbody>
+          ${S.apiKeys.map(k => `
+          <tr>
+            <td class="mono">${k.id}</td>
+            <td style="font-weight:500">${k.description||'—'}</td>
+            <td><div style="display:flex;flex-wrap:wrap;gap:3px">${(k.actions||[]).map(a=>`<span class="badge bi">${a}</span>`).join('')}</div></td>
+            <td><div style="display:flex;flex-wrap:wrap;gap:3px">${(k.collections||[]).map(c=>`<span class="badge bz">${c}</span>`).join('')}</div></td>
+            <td class="mono">${k.expires_at ? new Date(k.expires_at*1000).toLocaleDateString() : 'Never'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>`}
+</div>`;
+
+const buildCollView = () => {
+  const coll = S.collections.find(c => c.name === S.nav);
+  return `
+  <div class="tabs">
+    ${[['browse','Browse'],['schema','Schema'],['import','Import / Export'],['raw','Raw JSON']].map(([id, lbl]) =>
+      `<div class="tab ${S.tab===id?'active':''}" data-tab="${id}">${lbl}</div>`).join('')}
+    <div class="tabs-meta">
+      <span style="font-size:.75rem;font-weight:600;color:var(--tx3)">${esc(S.nav)}</span>
+      <span class="badge bz">${num(coll?.num_documents)} docs</span>
+    </div>
+  </div>
+  ${S.tab==='browse' ? buildBrowse(coll) : ''}
+  ${S.tab==='schema' ? buildSchema(coll) : ''}
+  ${S.tab==='import' ? buildImport()     : ''}
+  ${S.tab==='raw'    ? buildRaw(coll)    : ''}`;
+};
+
+const buildBrowse = coll => {
+  const docs  = S.results?.hits?.map(h => h.document) || [];
+  const total = S.results?.found || 0;
+  const pg    = S.page, ppg = 20;
+  const pages = Math.max(1, Math.ceil(total / ppg));
+  const cols  = (coll?.fields || []).slice(0, 7).map(f => f.name);
+
+  return `
+<div class="scroll">
+  <div class="srow">
+    <div class="swrap">
+      <div class="sico">${hi('magnifyingGlass')}</div>
+      <input class="sinp" id="si" placeholder="Search documents…   press Enter" value="${S.query}">
+    </div>
+    ${cols.length ? `
+    <select class="sel" id="sf" style="width:140px">
+      <option value="">Sort by…</option>
+      ${cols.map(f=>`<option value="${f}" ${S.sortField===f?'selected':''}>${f}</option>`).join('')}
+    </select>
+    <select class="sel" id="sd" style="width:90px">
+      <option value="asc"  ${S.sortDir==='asc' ?'selected':''}>ASC ↑</option>
+      <option value="desc" ${S.sortDir==='desc'?'selected':''}>DESC ↓</option>
+    </select>` : ''}
+    <button class="btn btn-primary btn-sm" id="btn-search">${hi('magnifyingGlass')} Search</button>
+  </div>
+
+  <div class="toolbar">
+    <span style="font-size:.8125rem;color:var(--tx3)">
+      ${S.loading ? 'Searching…' : `${num(total)} document${total!==1?'s':''} found`}
+    </span>
+    <div class="te">
+      <button class="btn btn-ghost btn-sm" id="btn-exp-r">${hi('arrowDownTray')} Export Results</button>
+      <button class="btn btn-primary btn-sm" id="btn-add-doc">${hi('plus')} Add Document</button>
+    </div>
+  </div>
+
+  ${S.loading ? `<div class="loading"><div class="spin"></div>Loading documents…</div>` : ''}
+
+  ${!S.loading && docs.length === 0 ? `
+    <div class="card"><div class="empty">
+      <div class="eico">${hi('magnifyingGlass','',40)}</div>
+      <div class="etitle">No documents found</div>
+      <p class="esub">Try a different query, or add a document to get started.</p>
+    </div></div>` : ''}
+
+  ${!S.loading && docs.length > 0 ? `
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:36px">#</th>${cols.map(c=>`<th>${c}</th>`).join('')}<th style="text-align:right">Actions</th></tr></thead>
+      <tbody>
+        ${docs.map((doc, i) => `
+        <tr>
+          <td class="mono" style="color:var(--tx3)">${(pg-1)*ppg+i+1}</td>
+          ${cols.map(f => {
+            const v = doc[f];
+            const d = v == null ? `<span class="null-v">null</span>`
+              : typeof v === 'object' ? `<span class="obj-v">[${Array.isArray(v)?'array':'object'}]</span>`
+              : (s => s.length > 55 ? s.slice(0,55)+'…' : s)(String(v));
+            return `<td title="${String(v??'')}">${d}</td>`;
+          }).join('')}
+          <td>
+            <div class="td-actions" style="justify-content:flex-end">
+              <button class="btn btn-ghost btn-xs btn-icon" title="View"   data-view='${JSON.stringify(doc).replace(/'/g,"&#39;")}'>${hi('eye','',15)}</button>
+              <button class="btn btn-ghost btn-xs btn-icon" title="Edit"   data-edit='${JSON.stringify(doc).replace(/'/g,"&#39;")}'>${hi('pencil','',15)}</button>
+              <button class="btn btn-dg    btn-xs btn-icon" title="Delete" data-del="${doc.id}">${hi('trash','',15)}</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  <div class="pager">
+    <span class="pager-info">Page ${pg} of ${pages} · ${num(total)} total</span>
+    <button class="btn btn-secondary btn-sm" id="btn-prev" ${pg<=1?'disabled':''}>← Prev</button>
+    <button class="btn btn-secondary btn-sm" id="btn-next" ${pg>=pages?'disabled':''}>Next →</button>
+  </div>` : ''}
+</div>`;
+};
+
+const buildSchema = coll => {
+  if (!coll) return `<div class="scroll"><div class="loading"><div class="spin"></div>Loading schema…</div></div>`;
+  return `
+<div class="scroll">
+  <div class="ph">
+    <div>
+      <div class="ph-title">${hi('circleStack')} ${esc(coll.name)}</div>
+      <div class="ph-meta">
+        <span>${num(coll.num_documents)} documents</span>
+        <span class="ph-dot"></span>
+        <span>${(coll.fields||[]).length} fields</span>
+        ${coll.default_sorting_field ? `<span class="ph-dot"></span><span>default sort: <strong>${coll.default_sorting_field}</strong></span>` : ''}
+      </div>
+    </div>
+    <button class="btn btn-dg btn-sm" data-del-coll="${esc(coll.name)}">${hi('trash')} Delete Collection</button>
+  </div>
+
+  <div class="sec-lbl">Fields</div>
+  <div class="card" style="overflow:hidden">
+    <div style="display:flex;padding:9px 16px;background:var(--g50);border-bottom:1px solid var(--bd)">
+      <span style="flex:2;font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.065em;color:var(--tx3)">Name</span>
+      <span style="flex:1;font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.065em;color:var(--tx3)">Type</span>
+      <span style="flex:3;font-size:.6875rem;font-weight:600;text-transform:uppercase;letter-spacing:.065em;color:var(--tx3)">Flags</span>
+    </div>
+    ${(coll.fields||[]).map(f => `
+    <div class="field-row">
+      <span class="fname" style="flex:2">${esc(f.name)}</span>
+      <span class="ftype">${typeBadge(f.type)}</span>
+      <div class="fflags">
+        ${f.index!==false ? `<span class="badge bg">indexed</span>` : `<span class="badge bz">not indexed</span>`}
+        ${f.facet    ? `<span class="badge bv">facet</span>`   : ''}
+        ${f.optional ? `<span class="badge bz">optional</span>`: ''}
+        ${f.sort     ? `<span class="badge ba">sortable</span>`: ''}
+        ${f.infix    ? `<span class="badge bs">infix</span>`   : ''}
+      </div>
+    </div>`).join('')}
+  </div>
+</div>`;
+};
+
+const buildImport = () => `
+<div class="scroll">
+  <div class="ph"><div class="ph-title">${hi('arrowUpTray')} Import / Export</div></div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hd"><h2>${hi('arrowUpTray')} Import Documents</h2></div>
+    <div class="card-bd" style="display:flex;flex-direction:column;gap:14px">
+      <div class="alert al-i">${hi('infoCircle')} Accepts a JSON array <code>[…]</code> or NDJSON (one document per line).</div>
+      <div class="fg">
+        <label class="fl">Paste your data</label>
+        <textarea class="ta" id="imp-data" rows="10" placeholder='[{"id":"1","title":"Hello"},{"id":"2","title":"World"}]'></textarea>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <div class="fg" style="flex:0 0 200px">
+          <label class="fl">Action</label>
+          <select class="sel" id="imp-action">
+            <option value="upsert">Upsert (create or update)</option>
+            <option value="create">Create only</option>
+            <option value="update">Update only</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="btn-import">${hi('arrowUpTray')} Import Documents</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h2>${hi('arrowDownTray')} Export</h2></div>
+    <div class="card-bd" style="display:flex;flex-direction:column;gap:10px">
+      <p style="color:var(--tx2);font-size:.875rem">Download all documents as NDJSON (one JSON object per line).</p>
+      <div><button class="btn btn-success" id="btn-exp-all">${hi('arrowDownTray')} Export All Documents</button></div>
+    </div>
+  </div>
+</div>`;
+
+const buildRaw = coll => `
+<div class="scroll">
+  <div class="ph">
+    <div class="ph-title">${hi('codeBracket')} Raw Collection JSON</div>
+    <div style="font-size:.8125rem;color:var(--tx3)">Full schema as returned by the Typesense API</div>
+  </div>
+  <div class="code">${coll ? jsonHL(coll) : 'Loading…'}</div>
+</div>`;
+
+const buildModal = () => {
+  if (!S.modal) return '';
+  let body = '';
+
+  if (S.modal === 'addDoc' || S.modal === 'editDoc') {
+    const edit = S.modal === 'editDoc';
+    body = `
+    <div class="mhd">
+      <div><div class="mtitle">${edit ? 'Edit Document' : 'Add Document'}</div>
+      <div class="msub">${edit ? `Editing id: ${esc(S.mdata.doc?.id ?? '—')}` : `Insert into ${esc(S.nav)}`}</div></div>
+      <button class="btn btn-ghost btn-icon" id="mc">${hi('xMark')}</button>
+    </div>
+    <div class="mbd">
+      <div class="fg">
+        <label class="fl">JSON Document</label>
+        <textarea class="ta" id="doc-json" rows="16">${edit ? JSON.stringify(S.mdata.doc, null, 2) : '{\n  "id": ""\n}'}</textarea>
+      </div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-secondary" id="mcancel">Cancel</button>
+      <button class="btn btn-primary"   id="msave">${hi('check')} ${edit ? 'Save Changes' : 'Insert'}</button>
+    </div>`;
+  }
+
+  else if (S.modal === 'viewDoc') {
+    body = `
+    <div class="mhd">
+      <div><div class="mtitle">Document</div><div class="msub">id: ${S.mdata.doc?.id ?? '—'}</div></div>
+      <button class="btn btn-ghost btn-icon" id="mc">${hi('xMark')}</button>
+    </div>
+    <div class="mbd"><div class="code">${jsonHL(S.mdata.doc)}</div></div>
+    <div class="mft"><button class="btn btn-secondary" id="mcancel">Close</button></div>`;
+  }
+
+  else if (S.modal === 'newColl') {
+    const eg = JSON.stringify({ name:'products', fields:[{name:'id',type:'string'},{name:'title',type:'string'},{name:'price',type:'float',facet:true,sort:true}], default_sorting_field:'price' }, null, 2);
+    body = `
+    <div class="mhd">
+      <div><div class="mtitle">Create Collection</div><div class="msub">Define the schema as JSON</div></div>
+      <button class="btn btn-ghost btn-icon" id="mc">${hi('xMark')}</button>
+    </div>
+    <div class="mbd">
+      <div class="alert al-i">${hi('infoCircle')} <span>The <code>name</code> and <code>fields</code> keys are required. Add <code>"facet": true</code> to enable filtering.</span></div>
+      <div class="fg">
+        <label class="fl">Schema JSON</label>
+        <textarea class="ta" id="schema-json" rows="18">${eg}</textarea>
+      </div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-secondary" id="mcancel">Cancel</button>
+      <button class="btn btn-primary"   id="mcreate-coll">${hi('plus')} Create Collection</button>
+    </div>`;
+  }
+
+  else if (S.modal === 'newAlias') {
+    body = `
+    <div class="mhd">
+      <div><div class="mtitle">Create Alias</div><div class="msub">Point a stable name to a collection</div></div>
+      <button class="btn btn-ghost btn-icon" id="mc">${hi('xMark')}</button>
+    </div>
+    <div class="mbd">
+      <div class="fg">
+        <label class="fl">Alias Name</label>
+        <input class="inp" id="alias-name" placeholder="e.g. products-live">
+      </div>
+      <div class="fg">
+        <label class="fl">Target Collection</label>
+        <select class="sel" id="alias-coll">
+          ${S.collections.map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-secondary" id="mcancel">Cancel</button>
+      <button class="btn btn-primary"   id="mcreate-alias">${hi('check')} Create Alias</button>
+    </div>`;
+  }
+
+  else if (S.modal === 'saveConn') {
+    body = `
+    <div class="mhd">
+      <div><div class="mtitle">Save Connection</div><div class="msub">${API.protocol}://${API.host}:${API.port}</div></div>
+      <button class="btn btn-ghost btn-icon" id="mc">${hi('xMark')}</button>
+    </div>
+    <div class="mbd">
+      <div class="fg">
+        <label class="fl">Connection Name</label>
+        <input class="inp" id="conn-name" placeholder="e.g. Production, Local Dev, Staging…" autofocus>
+      </div>
+      <p style="font-size:.8125rem;color:var(--tx2)">Your connection details (including the API key) will be saved in your browser's local storage.</p>
+    </div>
+    <div class="mft">
+      <button class="btn btn-secondary" id="mcancel">Cancel</button>
+      <button class="btn btn-primary"   id="msave-conn">${hi('bookmark')} Save Connection</button>
+    </div>`;
+  }
+
+  return `<div class="overlay" id="overlay"><div class="modal">${body}</div></div>`;
+};
+
+const bindEvents = () => {
+  const $ = id => document.getElementById(id);
+  const on = (el, ev, fn) => el?.addEventListener(ev, fn);
+  const all = (sel, ev, fn) => document.querySelectorAll(sel).forEach(el => el.addEventListener(ev, fn));
+  const closeModal = () => set({ modal: null });
+
+  all('[data-theme]', 'click', e => {
+    const mode = e.currentTarget.dataset.theme;
+    Theme.apply(mode);
+    document.querySelectorAll('[data-theme]').forEach(b =>
+      b.classList.toggle('active', b.dataset.theme === mode)
+    );
+  });
+
+  on($('btn-dc'), 'click', disconnect);
+  on($('btn-refresh'), 'click', async () => {
+    const c = await API.get('/collections').catch(() => S.collections);
+    set({ collections: c }); toast('Refreshed', 'ok');
+  });
+  on($('btn-save-conn'), 'click', () => set({ modal: 'saveConn', mdata: {} }));
+
+  on($('btn-connect'), 'click', () => {
+    const host = $('c-host')?.value.trim() || 'localhost';
+    const port = $('c-port')?.value.trim() || '8108';
+    const key  = $('c-key')?.value.trim()  || '';
+    const protocol = $('c-proto')?.value   || 'http';
+    const _saveNew = S.mdata._saveNew;
+    const saveName = $('c-save-name')?.value.trim() || '';
+
+    if (_saveNew && saveName) {
+      const list = Connections.add({ name: saveName, host, port, key, protocol });
+      set({ savedConns: list, activeConnName: saveName });
+    }
+    doConnect({ host, port, key, protocol });
+  });
+  on($('c-key'), 'keydown', e => e.key === 'Enter' && $('btn-connect')?.click());
+
+  on($('btn-toggle-save'), 'click', () => {
+    set({ mdata: { ...S.mdata, _saveNew: !S.mdata._saveNew } });
+  });
+
+  all('[data-load-conn]', 'click', e => {
+    const name = e.currentTarget.dataset.loadConn;
+    const conn = S.savedConns.find(c => c.name === name);
+    if (conn) loadConnection(conn);
+  });
+  all('[data-del-conn]', 'click', e => {
+    e.stopPropagation();
+    const name = e.currentTarget.dataset.delConn;
+    if (confirm(`Remove saved connection "${name}"?`)) deleteConnection(name);
+  });
+
+  all('[data-nav]', 'click', async e => {
+    e.preventDefault();
+    const v = e.currentTarget.dataset.nav;
+    if (['__overview__','__aliases__','__keys__'].includes(v)) set({ nav: v });
+    else await selectColl(v);
+  });
+
+  all('[data-tab]', 'click', e => set({ tab: e.currentTarget.dataset.tab }));
+
+  on($('btn-new-coll'),  'click', e => { e.stopPropagation(); set({ modal: 'newColl', mdata: {} }); });
+  on($('btn-new-coll2'), 'click', () => set({ modal: 'newColl', mdata: {} }));
+
+  on($('btn-search'), 'click', () => {
+    set({ query: $('si')?.value || '', sortField: $('sf')?.value || '', sortDir: $('sd')?.value || 'asc' });
+    doSearch(1);
+  });
+  on($('si'), 'keydown', e => e.key === 'Enter' && $('btn-search')?.click());
+  on($('btn-prev'), 'click', () => doSearch(S.page - 1));
+  on($('btn-next'), 'click', () => doSearch(S.page + 1));
+
+  on($('btn-add-doc'), 'click', () => set({ modal: 'addDoc', mdata: {} }));
+  all('[data-view]', 'click', e => set({ modal: 'viewDoc', mdata: { doc: JSON.parse(e.currentTarget.dataset.view) } }));
+  all('[data-edit]', 'click', e => set({ modal: 'editDoc', mdata: { doc: JSON.parse(e.currentTarget.dataset.edit) } }));
+  all('[data-del]',  'click', e => confirm(`Delete document "${e.currentTarget.dataset.del}"?`) && delDoc(e.currentTarget.dataset.del));
+
+  all('[data-del-coll]', 'click', e => delColl(e.currentTarget.dataset.delColl));
+
+  on($('btn-exp-r'),   'click', exportResults);
+  on($('btn-exp-all'), 'click', exportAll);
+  on($('btn-import'),  'click', () => importDocs($('imp-data')?.value || '', $('imp-action')?.value || 'upsert'));
+
+  on($('btn-new-alias'), 'click', () => set({ modal: 'newAlias', mdata: {} }));
+  all('[data-del-alias]', 'click', e => delAlias(e.currentTarget.dataset.delAlias));
+
+  on($('btn-load-keys'), 'click', async () => {
+    try { const r = await API.get('/keys'); set({ apiKeys: r?.keys || [] }); }
+    catch (e) { toast(e.message, 'err'); }
+  });
+
+  on($('mc'),      'click', closeModal);
+  on($('mcancel'), 'click', closeModal);
+  on($('overlay'), 'click', e => e.target.id === 'overlay' && closeModal());
+  document.addEventListener('keydown', e => e.key === 'Escape' && S.modal && closeModal(), { once: true });
+
+  on($('msave'),          'click', () => upsertDoc($('doc-json')?.value || ''));
+  on($('mcreate-coll'),   'click', () => createColl($('schema-json')?.value || ''));
+  on($('mcreate-alias'),  'click', () => {
+    const name = $('alias-name')?.value.trim();
+    if (!name) { toast('Alias name is required', 'err'); return; }
+    createAlias(name, $('alias-coll')?.value);
+  });
+  on($('msave-conn'), 'click', () => {
+    const name = $('conn-name')?.value.trim();
+    saveCurrentConnection(name);
+  });
+  on($('conn-name'), 'keydown', e => e.key === 'Enter' && $('msave-conn')?.click());
+};
+
+render();
+</script>
+</body>
+</html>
